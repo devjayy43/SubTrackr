@@ -36,34 +36,34 @@ export class RenewalPredictionService {
   }
 
   private calculateRiskScore(subscription: Subscription): number {
-    let score = 50; // baseline
+    let score = 10; // baseline (low risk)
 
     // Factor 1: Days until renewal (approaching renewal increases risk)
     const daysUntilRenewal = this.getDaysUntilRenewal(subscription.nextBillingDate);
-    if (daysUntilRenewal < 7) score += 15;
-    else if (daysUntilRenewal < 14) score += 8;
-    else if (daysUntilRenewal > 30) score -= 10;
+    if (daysUntilRenewal < 7) score += 45;
+    else if (daysUntilRenewal < 14) score += 20;
+    else if (daysUntilRenewal > 30) score -= 5;
 
     // Factor 2: Notifications disabled
-    if (subscription.notificationsEnabled === false) score += 20;
+    if (subscription.notificationsEnabled === false) score += 50;
 
     // Factor 3: Paused status
-    if (subscription.isPaused) score += 25;
+    if (subscription.isPaused) score += 50;
 
     // Factor 4: Long inactive period
     const daysSinceUpdate = this.getDaysSinceUpdate(subscription.updatedAt);
-    if (daysSinceUpdate > 60) score += 15;
-    else if (daysSinceUpdate > 30) score += 8;
+    if (daysSinceUpdate > 60) score += 55;
+    else if (daysSinceUpdate > 30) score += 20;
 
     // Factor 5: High price sensitivity (arbitrary threshold)
-    if (subscription.price > 50) score += 5;
+    if (subscription.price > 50) score += 2;
 
     return Math.min(100, Math.max(0, score));
   }
 
   private getRiskLevel(score: number): 'low' | 'medium' | 'high' {
-    if (score < 40) return 'low';
-    if (score < 70) return 'medium';
+    if (score < 35) return 'low';
+    if (score < 55) return 'medium';
     return 'high';
   }
 
